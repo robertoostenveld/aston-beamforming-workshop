@@ -11,13 +11,15 @@ from __future__ import print_function
 import numpy as np
 import mne
 
-from phantom_helpers import (get_data, get_fwd, actual_pos, mfs,
+from phantom_helpers import (get_data, get_fwd, actual_pos, maxfilter_options,
                              dipole_amplitudes, dipole_indices, plot_errors)
 
 
-errors = np.empty((len(mfs), len(dipole_amplitudes), len(dipole_indices)))
+errors = np.empty(
+    (len(maxfilter_options), len(dipole_amplitudes), len(dipole_indices)))
 src, fwd = get_fwd()
-for ui, mf in enumerate(mfs):
+
+for ui, mf in enumerate(maxfilter_options):
     for ai, dipole_amplitude in enumerate(dipole_amplitudes):
         print(('Processing : %4d nAm : SSS=%s'
                % (dipole_amplitude, mf)).ljust(40), end='')
@@ -27,8 +29,7 @@ for ui, mf in enumerate(mfs):
             # Do LCMV
             data_cov = mne.compute_covariance(epochs, tmin=0.)
             stc = mne.beamformer.lcmv(
-                evoked, fwd, cov, data_cov, reg=0.01, pick_ori='max-power',
-                weightnorm='unitnoisegain')
+                evoked, fwd, cov, data_cov, reg=0.01, pick_ori='max-power')
             idx_max = np.argmax(np.mean(stc.data, axis=1))
             vertno_max = stc.vertices[idx_max]
             pos = src[0]['rr'][vertno_max]
@@ -37,4 +38,5 @@ for ui, mf in enumerate(mfs):
             if dipole_amplitude < 1000 and errors[ui, ai, di] > 20:
                 raise RuntimeError
         print(np.round(errors[ui, ai], 1))
+
 plot_errors(errors, 'lcmv')

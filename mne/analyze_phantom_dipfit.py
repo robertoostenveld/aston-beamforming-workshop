@@ -11,11 +11,13 @@ from __future__ import print_function
 import numpy as np
 import mne
 
-from phantom_helpers import (get_data, plot_errors, mfs, dipole_amplitudes,
-                             dipole_indices, actual_pos)
+from phantom_helpers import (get_data, plot_errors, maxfilter_options,
+                             dipole_amplitudes, dipole_indices, actual_pos)
 
-errors = np.empty((len(mfs), len(dipole_amplitudes), len(dipole_indices)))
-for ui, mf in enumerate(mfs):
+errors = np.empty(
+    (len(maxfilter_options), len(dipole_amplitudes), len(dipole_indices)))
+
+for ui, mf in enumerate(maxfilter_options):
     for ai, dipole_amplitude in enumerate(dipole_amplitudes):
         print(('Processing : %4d nAm : SSS=%s'
                % (dipole_amplitude, mf)).ljust(40), end='')

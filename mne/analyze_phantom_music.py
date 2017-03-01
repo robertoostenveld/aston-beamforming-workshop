@@ -13,12 +13,15 @@ import numpy as np
 import mne
 
 from phantom_helpers import (get_data, get_fwd, plot_errors, actual_pos,
-                             mfs, dipole_indices, dipole_amplitudes)
+                             maxfilter_options, dipole_indices,
+                             dipole_amplitudes)
 
 
-errors = np.empty((len(mfs), len(dipole_amplitudes), len(dipole_indices)))
+errors = np.empty(
+    (len(maxfilter_options), len(dipole_amplitudes), len(dipole_indices)))
+
 src, fwd = get_fwd()
-for ui, use_maxwell_filter in enumerate(mfs):
+for ui, use_maxwell_filter in enumerate(maxfilter_options):
     for ai, dipole_amplitude in enumerate(dipole_amplitudes):
         print(('Processing : %4d nAm : SSS=%s'
                % (dipole_amplitude, use_maxwell_filter)).ljust(40), end='')
@@ -30,4 +33,5 @@ for ui, use_maxwell_filter in enumerate(mfs):
             errors[ui, ai, di] = 1e3 * np.linalg.norm(
                 pos - actual_pos[dipole_idx - 1])
         print(np.round(errors[ui, ai], 1))
+
 plot_errors(errors, 'music')

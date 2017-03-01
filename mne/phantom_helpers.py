@@ -15,7 +15,7 @@ actual_pos = mne.dipole.get_phantom_dipoles('otaniemi')[0]
 
 base_path = op.join(op.dirname(__file__), '..', '..', 'phantom')
 
-mfs = [False, True, 'mne']
+maxfilter_options = [False, True, 'mne']
 dipole_amplitudes = [20, 100, 200, 1000]
 dipole_indices = [5, 6, 7, 8]
 
@@ -25,7 +25,7 @@ def plot_errors(errors, kind):
     xs = np.arange(3)
     xticklabels = ('Raw', 'SSS', 'SSS$_{MNE}$')
     ylim = [0, 20]
-    fig, axs = plt.subplots(4, 1, figsize=(3, 6))
+    fig, axs = plt.subplots(5, 1, figsize=(4, 8))
     for ai, dipole_amplitude in enumerate([20, 100, 200, 1000]):
         ax = axs[ai]
         for di in range(len(dipole_indices)):
@@ -35,9 +35,12 @@ def plot_errors(errors, kind):
         ax.set(xticklabels=[''] * len(xs))
         if ai == 3:
             ax.set(xticklabels=xticklabels)
-            ax.legend(loc='upper left')
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(handles, labels, loc='upper center',
+                      bbox_to_anchor=(0.5, -0.25), ncol=2)
         ax.grid(True)
     fig.tight_layout()
+    axs[-1].set_visible(False)
     for ext in ('png', 'pdf'):
         plt.savefig(op.join('figures', ('phantom_errors_%s.' % kind) + ext))
     plt.show()
