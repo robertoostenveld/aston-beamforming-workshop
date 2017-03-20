@@ -61,8 +61,8 @@ end
 
 
 %%
-for jj=1:size(datasets,2) % across dipole locations
-    for ii=1:size(datasets,1) % across dipole strengths
+for jj=1:size(datasets,1) % across dipole locations
+    for ii=1:size(datasets,2) % across dipole strengths
         cfg = [];
         cfg.dataset=datasets{jj,ii}; % for weight computation
         
