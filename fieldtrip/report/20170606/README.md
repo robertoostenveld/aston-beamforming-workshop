@@ -6,6 +6,24 @@ The CT scan that is shown in the background is not 100% correctly coregistered w
 
 Ideally, the color-coded distribution of the inverse solution should have its peak at the crosshair.
 
+This report is organized as follows:
+
+The main sections correspond to dipole strength
+- 1000 nAm dipole
+- 200 nAm dipole
+- 100 nAm dipole
+- 20 nAm dipole
+
+Each main sections is split over the different dipole locations
+- dip05 (superficial)
+- dip06
+- dip07
+- dip08 (deep)
+
+For each dipole strength and location there are figures for
+- RV
+- LCMV
+
 ## 1000 nAm dipole
 
 ### Residual variance scan, -log10()
