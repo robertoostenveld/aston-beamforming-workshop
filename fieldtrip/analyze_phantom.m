@@ -1,4 +1,3 @@
-%%
 cd /Volumes/ASTON/data/phantom
 
 %%
@@ -120,8 +119,8 @@ for i = 1:numel(filename)
   %%
   % the remainder is in separate scripts, which generate figures (on disk) and data files
   
-  % scan_rv
-  % scan_lcmv
+  scan_rv
+  scan_lcmv
   scan_dics
   
 end

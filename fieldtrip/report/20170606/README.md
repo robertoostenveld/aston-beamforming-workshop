@@ -24,6 +24,8 @@ For each dipole strength and location there are figures for
 - RV
 - LCMV
 
+DICS results have been computed but are not shown here (yet).
+
 ## 1000 nAm dipole
 
 ### Residual variance scan, -log10()

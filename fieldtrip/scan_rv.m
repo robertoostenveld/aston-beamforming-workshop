@@ -33,7 +33,7 @@ cfg.parameter = 'rv';
 source_rv_int = ft_sourceinterpolate(cfg, source_rv, mri);
 
 %%
-% PLEASE NOTE THAT i IS COMING FROM THE CALLING script
+% PLEASE NOTE THAT i IS COMING FROM THE CALLING SCRIPT
 
 cfg = [];
 cfg.funparameter = 'rv';

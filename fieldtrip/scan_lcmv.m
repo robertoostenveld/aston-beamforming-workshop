@@ -1,4 +1,4 @@
-
+% LCMV scan
 
 %%
 
@@ -38,7 +38,7 @@ cfg.parameter = 'pow';
 source_lcmv_relative_int = ft_sourceinterpolate(cfg, source_lcmv_relative, mri);
 
 %%
-% PLEASE NOTE THAT i IS COMING FROM THE CALLING script
+% PLEASE NOTE THAT i IS COMING FROM THE CALLING SCRIPT
 
 cfg = [];
 cfg.funparameter = 'pow';
