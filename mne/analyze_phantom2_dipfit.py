@@ -17,8 +17,9 @@ import mne
 # from phantom_helpers import (plot_errors, maxfilter_options,
 #                              dipole_amplitudes, dipole_indices, actual_pos)
 
-from phantom_helpers import actual_pos
+# from phantom_helpers import actual_pos
 
+actual_pos = mne.dipole.get_phantom_dipoles('vectorview')[0]
 
 base_path = op.join(op.dirname(__file__), '..', '..', 'phantom_aston')
 
