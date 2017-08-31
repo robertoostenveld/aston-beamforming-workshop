@@ -11,29 +11,36 @@ import matplotlib.pyplot as plt
 
 import mne
 
-actual_pos = mne.dipole.get_phantom_dipoles('otaniemi')[0]
 
-base_path = op.join(op.dirname(__file__), '..', '..', 'phantom')
+def plot_errors(errors, kind, postfix=''):
+    mf_legends = {False: 'Raw', True: 'SSS', 'mne': 'SSS$_{MNE}$'}
+    errors = errors.copy()
+    errors['maxfilter'] = errors['maxfilter'].apply(lambda x: mf_legends[x])
+    dipole_amplitudes = errors['dipole_amplitude'].unique()
+    dipole_indices = errors['dipole_index'].unique()
+    n_amplidudes = dipole_amplitudes.size
+    n_maxfilter = errors['maxfilter'].unique().size
 
-maxfilter_options = [False, True, 'mne']
-dipole_amplitudes = [20, 100, 200, 1000]
-dipole_indices = [5, 6, 7, 8]
+    if n_maxfilter == 2:
+        xticklabels = [mf_legends[k] for k in [False, 'mne']]
+    else:
+        xticklabels = [mf_legends[k] for k in [False, True, 'mne']]
 
-
-def plot_errors(errors, kind):
-    # Visualize the result
-    xs = np.arange(3)
-    xticklabels = ('Raw', 'SSS', 'SSS$_{MNE}$')
+    xs = np.arange(n_maxfilter)
     ylim = [0, 20]
-    fig, axs = plt.subplots(5, 1, figsize=(4, 8))
-    for ai, dipole_amplitude in enumerate([20, 100, 200, 1000]):
+    fig, axs = plt.subplots(n_amplidudes + 1, 1, figsize=(4, 8))
+    for ai, da in enumerate(dipole_amplitudes):
         ax = axs[ai]
-        for di in range(len(dipole_indices)):
-            ax.plot(xs, errors[:, ai, di], label='%d' % dipole_indices[di])
-        ax.set(title='%d nAm' % dipole_amplitude, ylim=ylim, xticks=xs,
-               ylabel='Error (mm)', xlim=[0, 2])
+        for di in dipole_indices:
+            query = 'dipole_index==%s and dipole_amplitude==%s' % (di, da)
+            this_errors = errors.query(query)
+            this_errors = this_errors[['maxfilter', 'error']].set_index('maxfilter')
+            this_errors = this_errors.loc[xticklabels].values
+            ax.plot(xs, this_errors, label='%d' % di)
+        ax.set(title='%d nAm' % da, ylim=ylim, xticks=xs,
+               ylabel='Error (mm)', xlim=[0, len(xticklabels) - 1])
         ax.set(xticklabels=[''] * len(xs))
-        if ai == 3:
+        if ai == len(dipole_amplitudes) - 1:
             ax.set(xticklabels=xticklabels)
             handles, labels = ax.get_legend_handles_labels()
             ax.legend(handles, labels, loc='upper center',
@@ -41,23 +48,31 @@ def plot_errors(errors, kind):
         ax.grid(True)
     fig.tight_layout()
     axs[-1].set_visible(False)
+    basename = ('phantom_errors_%s%s.' % (kind, postfix))
     for ext in ('png', 'pdf'):
-        plt.savefig(op.join('figures', ('phantom_errors_%s.' % kind) + ext))
+        fig_fname = basename + ext
+        plt.savefig(op.join('figures', fig_fname))
     plt.show()
+    errors.to_csv(op.join('results', basename + 'csv'))
 
 
-def get_fwd():
+ 
+def get_fwd(base_path):
     # They all have approximately the same dev_head_t
-    info = mne.io.read_info(base_path + '/1000nAm/dip05_1000nAm.fif')
+    if "phantom_aston" in base_path:
+        info = mne.io.read_info(base_path +
+                            '/Amp1000_IASoff/Amp1000_Dip5_IASoff.fif')
+    else:
+        info = mne.io.read_info(base_path + '/1000nAm/dip05_1000nAm.fif')
     sphere = mne.make_sphere_model(r0=(0., 0., 0.), head_radius=0.080)
-    src_fname = 'phantom-src.fif'
+    src_fname = op.join(base_path, 'phantom-src.fif')
     if not op.isfile(src_fname):
         mne.setup_volume_source_space(
-            subject=None, fname=None, pos=3.5, mri=None,
+            subject=None, pos=3.5, mri=None,
             sphere=(0.0, 0.0, 0.0, 80.0), bem=None, mindist=5.0,
             exclude=2.0).save(src_fname)
     src = mne.read_source_spaces(src_fname)
-    fwd_fname = 'phantom-fwd.fif'
+    fwd_fname = op.join(base_path, 'phantom-fwd.fif')
     if not op.isfile(fwd_fname):
         mne.write_forward_solution(fwd_fname, mne.make_forward_solution(
             info, trans=None, src=src, bem=sphere, eeg=False,
@@ -66,18 +81,28 @@ def get_fwd():
     return src, fwd
 
 
-def get_data(dipole_idx, dipole_amplitude, use_maxwell_filter, show=False):
-    data_path = base_path + '/%dnAm/' % dipole_amplitude
-    if use_maxwell_filter is True:
-        fname = 'dip%02d_%dnAm_sss.fif' % (dipole_idx, dipole_amplitude)
+def get_data(base_path, dipole_idx, dipole_amplitude, use_maxwell_filter,
+             bads=[], show=False):
+    if "phantom_aston" in base_path:
+        data_path = base_path + '/Amp%d_IASoff/' % dipole_amplitude
+        fname = 'Amp%d_Dip%d_IASoff.fif' % (dipole_amplitude, dipole_idx)
+        stim_channel = 'SYS201'
+        assert use_maxwell_filter in ['mne', False]
     else:
-        fname = 'dip%02d_%dnAm.fif' % (dipole_idx, dipole_amplitude)
+        data_path = base_path + '/%dnAm/' % dipole_amplitude
+        if use_maxwell_filter is True:
+            fname = 'dip%02d_%dnAm_sss.fif' % (dipole_idx, dipole_amplitude)
+        else:
+            fname = 'dip%02d_%dnAm.fif' % (dipole_idx, dipole_amplitude)
+        stim_channel = 'STI201'
 
     raw_fname = op.join(data_path, fname)
     raw = mne.io.read_raw_fif(raw_fname, preload=True, verbose='error')
-    raw.info['bads'] = ['MEG2233', 'MEG2422', 'MEG0111']
+    raw.info['bads'] = bads
 
-    events = mne.find_events(raw, stim_channel='STI201')
+    if "phantom_aston" in base_path:
+        raw.crop(20, None)
+    events = mne.find_events(raw, stim_channel=stim_channel)
     if show:
         raw.plot(events=events)
     if show:
@@ -115,4 +140,32 @@ def get_data(dipole_idx, dipole_amplitude, use_maxwell_filter, show=False):
     evoked.crop(0, None)
     sphere = mne.make_sphere_model(r0=(0., 0., 0.), head_radius=0.08)
     cov = mne.compute_covariance(epochs, tmax=-0.05)
+    print(fname + " nave=%d" % evoked.nave, end='')
     return epochs, evoked, cov, sphere
+
+
+def get_bench_params(base_path):
+    if "aston" not in base_path:
+        dipole_amplitudes = [20, 100, 200, 1000]
+        dipole_indices = [5, 6, 7, 8]
+        maxfilter_options = [False, True, 'mne']
+        actual_pos = mne.dipole.get_phantom_dipoles('otaniemi')[0]
+        bads = ['MEG2233', 'MEG2422', 'MEG0111']
+    else:
+        dipole_amplitudes = [20, 200, 1000]
+        dipole_indices = [5, 6, 7, 8, 9, 10, 11, 12]
+        maxfilter_options = [False, 'mne']
+        actual_pos = mne.dipole.get_phantom_dipoles('vectorview')[0]
+        bads = ['MEG1323', 'MEG1133', 'MEG0613', 'MEG1032', 'MEG2313',
+                'MEG1133', 'MEG0613', 'MEG0111', 'MEG2423']
+    return maxfilter_options, dipole_amplitudes, dipole_indices, actual_pos, bads
+
+
+def get_dataset(name):
+    if name != 'aston':
+        base_path = op.join(op.dirname(__file__), '..', '..', 'phantom')
+        postfix = ''
+    else:
+        base_path = op.join(op.dirname(__file__), '..', '..', 'phantom_aston')
+        postfix = '_aston'
+    return base_path, postfix   
