@@ -1,14 +1,12 @@
-# This report describes some results from an analysis finalized on 6 June 2017
-
-*Update - 7 June 2017: I have also added the DICS results*
-
-*Update - 6 Sept 2017: I updated the section headings with a bit more detail*
+# This report describes some results from an analysis finalized on 6 September 2017
 
 For all figures below, the crosshair indicates the theoretical position of the dipole in the phantom.
 
 The CT scan that is shown in the background is not 100% correctly coregistered with the actual phantom (this is a known bug in the analysis script).
 
 Ideally, the color-coded distribution of the inverse solution should have its peak at the crosshair.
+
+This report is organized as follows:
 
 The main sections correspond to dipole strength
 - 1000 nAm dipole
