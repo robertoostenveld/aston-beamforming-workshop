@@ -1,19 +1,15 @@
-cd /Volumes/ASTON/data/phantom
+cd C:\home\Data\Aston\phantom
 
 %%
-mri = ft_read_mri('CT/Elekta_Vectorview_phantom_ct.nii');
+mri = ft_read_mri('CT/Elekta_Vectorview_phantom_ct.nii', 'dataformat', 'nifti_spm');
 mri.anatomy = double(mri.anatomy);
 mri.anatomy(mri.anatomy==255) = 0;
 
-trans = [
-  0.999982     2.86548e-08 -0.0060473   0.00887158
-  3.67397e-05  0.999982     0.00606764  0.00284997
-  0.00604718  -0.00606776   0.999963   -0.0131477
-  0 0 0 1
-  ];
+trans = load('CT/Elekta_Vectorview_phantom_ct.trans');
 
 mri.transform = trans * mri.transform; % FIXME this is not correct
 mri = ft_convert_units(mri, 'm');
+%%
 
 filename = {
   '1000nAm/dip05_1000nAm_sss.fif'
@@ -37,10 +33,10 @@ filename = {
 
 %%
 
-dip05 = [32.5 0 56.3]/1000; % 65
-dip06 = [27.5 0 47.6]/1000; % 55
-dip07 = [22.5 0 39.0]/1000; % 45
-dip08 = [17.5 0 30.3]/1000; % 35
+dip05 = [37.2 0 52  ]/1000; % 64
+dip06 = [27.5 0 46.4]/1000; % 54
+dip07 = [15.8 0 41.0]/1000; % 44
+dip08 = [7.9  0 30.3]/1000; % 35
 
 %%
 
@@ -67,19 +63,19 @@ for i = 1:numel(filename)
   cfg.demean = 'yes';
   cfg = ft_definetrial(cfg);
   data = ft_preprocessing(cfg);
-  
+  %%
   cfg = [];
-  cfg.toilim = [0 0.100];
+  cfg.toilim = [0 0.1];
   active = ft_redefinetrial(cfg, data);
   
   cfg = [];
-  cfg.toilim = [0.150 0.250];
+  cfg.toilim = [-0.1 0];
   baseline = ft_redefinetrial(cfg, data);
   
   %%
   
   cfg = [];
-  cfg.channel = 'megmag';
+  cfg.channel = 'meggrad';%'megmag';
   cfg.viewmode = 'vertical';
   % ft_databrowser(cfg, data);
   % ft_databrowser(cfg, active);
@@ -106,6 +102,7 @@ for i = 1:numel(filename)
   %%
   
   cfg = [];
+  cfg.channel = 'megmag';
   cfg.layout = 'neuromag306all.lay';
   ft_multiplotER(cfg, timelock_active);
   

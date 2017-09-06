@@ -7,10 +7,10 @@ cfg.headmodel = headmodel;
 cfg.grid = sourcemodel;
 cfg.method = 'lcmv';
 cfg.channel = 'megplanar';
-cfg.latency = 0.060;
+%cfg.latency = 0.060;
 source_lcmv_active   = ft_sourceanalysis(cfg, timelock_active);
 
-cfg.latency = 0.060+0.150;
+%cfg.latency = 0.060+0.150;
 source_lcmv_baseline = ft_sourceanalysis(cfg, timelock_baseline);
 
 %%
