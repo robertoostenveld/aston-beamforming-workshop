@@ -10,6 +10,12 @@ trans = load('CT/Elekta_Vectorview_phantom_ct.trans');
 mri.transform = trans * mri.transform; % FIXME this is not correct
 mri = ft_convert_units(mri, 'm');
 %%
+amp = {'20nAm', '100nAm', '200nAm', '1000nAm'};
+dip = {'dip05', 'dip06', 'dip07', 'dip08'};
+
+methods = {'dip_fit', 'scan_rv', 'scan_lcmv', 'scan_dics'};
+
+table = zeros(numel(dip), numel(amp));
 
 filename = {
   '1000nAm/dip05_1000nAm_sss.fif'
@@ -33,10 +39,10 @@ filename = {
 
 %%
 
-dip05 = [37.2 0 52  ]/1000; % 64
+dip05 = [37.2 0 52.0]/1000; % 64
 dip06 = [27.5 0 46.4]/1000; % 54
 dip07 = [15.8 0 41.0]/1000; % 44
-dip08 = [7.9  0 30.3]/1000; % 35
+dip08 = [7.9  0 33.0]/1000; % 35
 
 %%
 
@@ -75,7 +81,7 @@ for i = 1:numel(filename)
   %%
   
   cfg = [];
-  cfg.channel = 'meggrad';%'megmag';
+  cfg.channel = 'megmag';%'meggrad';%
   cfg.viewmode = 'vertical';
   % ft_databrowser(cfg, data);
   % ft_databrowser(cfg, active);
@@ -114,6 +120,31 @@ for i = 1:numel(filename)
   sourcemodel = ft_prepare_sourcemodel(cfg, timelock_active);
   
   %%
+  cfg=[];
+  cfg.headmodel = headmodel;
+  cfg.grid.resolution = 20*1e-3;
+  cfg.gridsearch = 'yes';
+  cfg.channel = 'megplanar';
+
+  cfg.latency = [0.03 0.05];    
+  
+  dip_source  = ft_dipolefitting(cfg, timelock_active);
+     
+  %%
+  for j = 1:numel(dip)     
+          if ~isempty(findstr(dip{j}, filename{i}))
+              break;
+          end
+  end
+  
+  for k = 1:numel(amp)
+      if ~isempty(findstr(amp{k}, filename{i}))
+          break;
+      end
+  end
+  %%
+  table(j, k) = 1e3*norm(dip_source.dip.pos-eval(dip{j}));
+  %%
   % the remainder is in separate scripts, which generate figures (on disk) and data files
   
   scan_rv
@@ -121,3 +152,5 @@ for i = 1:numel(filename)
   scan_dics
   
 end
+%%
+save table.mat table dip amp methods

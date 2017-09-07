@@ -23,7 +23,10 @@ cfg.operation = 'log10(x1/x2)';
 source_dics_relative = ft_math(cfg, source_dics_active, source_dics_baseline);
 
 %%
+[~, ind] = max(source_dics_relative.pow);
 
+table(j, k, 4) = 1e3*norm(source_dics_relative.pos(ind, :)-eval(dip{j}));
+%%
 cfg = [];
 cfg.funparameter = 'pow';
 cfg.location = 'max';
