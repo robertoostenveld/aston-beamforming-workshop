@@ -24,7 +24,10 @@ cfg.operation = 'log10(x1/x2)';
 source_lcmv_relative = ft_math(cfg, source_lcmv_active, source_lcmv_baseline);
 
 %%
+[~, ind] = max(source_lcmv_relative.pow);
 
+table(j, k, 3) = 1e3*norm(source_lcmv_relative.pos(ind, :)-eval(dip{j}));
+%%
 cfg = [];
 cfg.funparameter = 'pow';
 cfg.location = 'max';

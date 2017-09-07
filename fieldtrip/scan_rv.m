@@ -24,15 +24,18 @@ cfg.funparameter = 'rv';
 cfg.location = 'max';
 ft_sourceplot(cfg, source_rv);
 
+%%
+[~, ind] = max(source_rv.rv);
 
+table(j, k, 2) = 1e3*norm(source_rv.pos(ind, :)-eval(dip{j}));
 %%
 
-cfg = [];
 cfg.downsample = 2; % for memory reasons
 cfg.parameter = 'rv';
 source_rv_int = ft_sourceinterpolate(cfg, source_rv, mri);
 
 %%
+cfg = [];
 % PLEASE NOTE THAT i IS COMING FROM THE CALLING SCRIPT
 
 cfg = [];
