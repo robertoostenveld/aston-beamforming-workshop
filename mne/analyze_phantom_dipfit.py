@@ -44,6 +44,7 @@ parallel, prun, _ = parallel_func(run, n_jobs=4)
 errors = parallel([prun(da, di, mf) for mf, da, di in
                    product(maxfilter_options, dipole_amplitudes,
                            dipole_indices)])
-errors = pd.concat(errors, axis=0)
+errors = pd.concat(errors, axis=0, ignore_index=True)
+
 
 plot_errors(errors, 'dipfit', postfix=postfix)
