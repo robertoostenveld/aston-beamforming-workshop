@@ -25,5 +25,5 @@ for i, mi in enumerate(methods):
 
 errors = pd.concat(errors, axis=0, ignore_index=True)
 
-plot_errors(errors, "fieldtrip_" + method, postfix=postfix, ylim=(0, 25),
+plot_errors(errors, "fieldtrip", postfix=postfix, ylim=(0, 25),
             xlabel_mapping=None)
