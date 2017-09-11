@@ -12,29 +12,28 @@ import matplotlib.pyplot as plt
 import mne
 
 
-def plot_errors(errors, kind, postfix=''):
-    mf_legends = {False: 'Raw', True: 'SSS', 'mne': 'SSS$_{MNE}$'}
+def plot_errors(errors, kind, postfix='', ylim=(0, 20), xkey='maxfilter',
+                xlabel_mapping={"False": 'Raw', "True": 'SSS',
+                                'mne': 'SSS$_{MNE}$'}):
+    errors_init = errors.copy()
     errors = errors.copy()
-    errors['maxfilter'] = errors['maxfilter'].apply(lambda x: mf_legends[x])
+    errors[xkey] = errors[xkey].astype(str)
+    if xlabel_mapping is not None:
+        errors[xkey] = errors[xkey].apply(lambda x: xlabel_mapping[x])
     dipole_amplitudes = errors['dipole_amplitude'].unique()
     dipole_indices = errors['dipole_index'].unique()
     n_amplidudes = dipole_amplitudes.size
-    n_maxfilter = errors['maxfilter'].unique().size
-
-    if n_maxfilter == 2:
-        xticklabels = [mf_legends[k] for k in [False, 'mne']]
-    else:
-        xticklabels = [mf_legends[k] for k in [False, True, 'mne']]
+    xticklabels = errors[xkey].unique()
+    n_maxfilter = errors[xkey].unique().size
 
     xs = np.arange(n_maxfilter)
-    ylim = [0, 20]
     fig, axs = plt.subplots(n_amplidudes + 1, 1, figsize=(4, 8))
     for ai, da in enumerate(dipole_amplitudes):
         ax = axs[ai]
         for di in dipole_indices:
             query = 'dipole_index==%s and dipole_amplitude==%s' % (di, da)
             this_errors = errors.query(query)
-            this_errors = this_errors[['maxfilter', 'error']].set_index('maxfilter')
+            this_errors = this_errors[[xkey, 'error']].set_index(xkey)
             this_errors = this_errors.loc[xticklabels].values
             ax.plot(xs, this_errors, label='%d' % di)
         ax.set(title='%d nAm' % da, ylim=ylim, xticks=xs,
@@ -53,15 +52,14 @@ def plot_errors(errors, kind, postfix=''):
         fig_fname = basename + ext
         plt.savefig(op.join('figures', fig_fname))
     plt.show()
-    errors.to_csv(op.join('results', basename + 'csv'))
+    errors_init.to_csv(op.join('results', basename + 'csv'), index=False)
 
 
- 
 def get_fwd(base_path):
     # They all have approximately the same dev_head_t
     if "phantom_aston" in base_path:
         info = mne.io.read_info(base_path +
-                            '/Amp1000_IASoff/Amp1000_Dip5_IASoff.fif')
+                                '/Amp1000_IASoff/Amp1000_Dip5_IASoff.fif')
     else:
         info = mne.io.read_info(base_path + '/1000nAm/dip05_1000nAm.fif')
     sphere = mne.make_sphere_model(r0=(0., 0., 0.), head_radius=0.080)
@@ -168,4 +166,4 @@ def get_dataset(name):
     else:
         base_path = op.join(op.dirname(__file__), '..', '..', 'phantom_aston')
         postfix = '_aston'
-    return base_path, postfix   
+    return base_path, postfix
