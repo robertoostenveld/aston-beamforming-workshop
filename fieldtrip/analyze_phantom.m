@@ -116,7 +116,7 @@ for i = 1:numel(filename)
   
   cfg = [];
   cfg.headmodel = headmodel;
-  cfg.grid.resolution = 0.01;
+  cfg.grid.resolution = 0.0035;
   sourcemodel = ft_prepare_sourcemodel(cfg, timelock_active);
   
   %%
