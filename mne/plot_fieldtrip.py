@@ -3,7 +3,7 @@ import pandas as pd
 
 from phantom_helpers import plot_errors
 
-data = loadmat('../fieldtrip/report/20170906/table.mat')
+data = loadmat('../fieldtrip/report/20170913/table.mat')
 
 table = data['table']
 methods = list(map(lambda x: str(x[0]), data['methods'][0]))
@@ -25,5 +25,5 @@ for i, mi in enumerate(methods):
 
 errors = pd.concat(errors, axis=0, ignore_index=True)
 
-plot_errors(errors, "fieldtrip", postfix=postfix, ylim=(0, 25),
+plot_errors(errors, "fieldtrip2", postfix=postfix, ylim=(0, 25),
             xlabel_mapping=None)

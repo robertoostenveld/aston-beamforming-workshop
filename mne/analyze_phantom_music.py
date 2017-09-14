@@ -19,8 +19,8 @@ from mne.parallel import parallel_func
 from phantom_helpers import get_data, plot_errors, get_bench_params, get_fwd
 from phantom_helpers import get_dataset
 
-base_path, postfix = get_dataset('aston')
-# base_path, postfix = get_dataset('')
+# base_path, postfix = get_dataset('aston')
+base_path, postfix = get_dataset('')
 
 maxfilter_options, dipole_amplitudes, dipole_indices, actual_pos, bads =\
     get_bench_params(base_path)
