@@ -67,16 +67,28 @@ for i = 1:numel(filename)
   cfg.lpfilter = 'yes';
   cfg.lpfreq = 40;
   cfg.demean = 'yes';
+  cfg.coilaccuracy = 2;
   cfg = ft_definetrial(cfg);
   data = ft_preprocessing(cfg);
   %%
   cfg = [];
+  cfg.method = 'pca';
+  cfg.updatesens = 'no';
+  cfg.channel = 'megplanar';
+  comp = ft_componentanalysis(cfg, data);
+  
+  cfg = [];
+  cfg.updatesens = 'no';
+  cfg.component = comp.label(51:end);
+  data_fix = ft_rejectcomponent(cfg, comp);
+  %%
+  cfg = [];
   cfg.toilim = [0 0.1];
-  active = ft_redefinetrial(cfg, data);
+  active = ft_redefinetrial(cfg, data_fix);
   
   cfg = [];
   cfg.toilim = [-0.1 0];
-  baseline = ft_redefinetrial(cfg, data);
+  baseline = ft_redefinetrial(cfg, data_fix);
   
   %%
   
@@ -110,7 +122,7 @@ for i = 1:numel(filename)
   cfg = [];
   cfg.channel = 'megmag';
   cfg.layout = 'neuromag306all.lay';
-  ft_multiplotER(cfg, timelock_active);
+  %ft_multiplotER(cfg, timelock_active);
   
   %%
   
