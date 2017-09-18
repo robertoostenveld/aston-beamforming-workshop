@@ -17,24 +17,45 @@ methods = {'dip_fit', 'scan_rv', 'scan_lcmv', 'scan_dics'};
 
 table = zeros(numel(dip), numel(amp));
 
-filename = {
-  '1000nAm/dip05_1000nAm_sss.fif'
-  '1000nAm/dip06_1000nAm_sss.fif'
-  '1000nAm/dip07_1000nAm_sss.fif'
-  '1000nAm/dip08_1000nAm_sss.fif'
-  '100nAm/dip05_100nAm_sss.fif'
-  '100nAm/dip06_100nAm_sss.fif'
-  '100nAm/dip07_100nAm_sss.fif'
-  '100nAm/dip08_100nAm_sss.fif'
-  '200nAm/dip05_200nAm_sss.fif'
-  '200nAm/dip06_200nAm_sss.fif'
-  '200nAm/dip07_200nAm_sss.fif'
-  '200nAm/dip08_200nAm_sss.fif'
-  '20nAm/dip05_20nAm_sss.fif'
-  '20nAm/dip06_20nAm_sss.fif'
-  '20nAm/dip07_20nAm_sss.fif'
-  '20nAm/dip08_20nAm_sss.fif'
-  };
+% filename = {
+%   '1000nAm/dip05_1000nAm_sss.fif'
+%   '1000nAm/dip06_1000nAm_sss.fif'
+%   '1000nAm/dip07_1000nAm_sss.fif'
+%   '1000nAm/dip08_1000nAm_sss.fif'
+%   '100nAm/dip05_100nAm_sss.fif'
+%   '100nAm/dip06_100nAm_sss.fif'
+%   '100nAm/dip07_100nAm_sss.fif'
+%   '100nAm/dip08_100nAm_sss.fif'
+%   '200nAm/dip05_200nAm_sss.fif'
+%   '200nAm/dip06_200nAm_sss.fif'
+%   '200nAm/dip07_200nAm_sss.fif'
+%   '200nAm/dip08_200nAm_sss.fif'
+%   '20nAm/dip05_20nAm_sss.fif'
+%   '20nAm/dip06_20nAm_sss.fif'
+%   '20nAm/dip07_20nAm_sss.fif'
+%   '20nAm/dip08_20nAm_sss.fif'
+%   };
+
+
+% filename = {
+%   '1000nAm/dip05_1000nAm.fif'
+%   '1000nAm/dip06_1000nAm.fif'
+%   '1000nAm/dip07_1000nAm.fif'
+%   '1000nAm/dip08_1000nAm.fif'
+%   '100nAm/dip05_100nAm.fif'
+%   '100nAm/dip06_100nAm.fif'
+%   '100nAm/dip07_100nAm.fif'
+%   '100nAm/dip08_100nAm.fif'
+%   '200nAm/dip05_200nAm.fif'
+%   '200nAm/dip06_200nAm.fif'
+%   '200nAm/dip07_200nAm.fif'
+%   '200nAm/dip08_200nAm.fif'
+%   '20nAm/dip05_20nAm.fif'
+%   '20nAm/dip06_20nAm.fif'
+%   '20nAm/dip07_20nAm.fif'
+%   '20nAm/dip08_20nAm.fif'
+%   };
+%%
 
 
 %%
@@ -51,6 +72,7 @@ headmodel.o = [0 0 0];
 headmodel.r = 0.10;
 
 %%
+pos = [];
 
 for i = 1:numel(filename)
   
@@ -60,6 +82,7 @@ for i = 1:numel(filename)
   
   cfg = [];
   cfg.dataset = filename{i};
+  cfg.channel = {'megplanar', '-MEG1133', '-MEG1323', '-MEG2233'};
   cfg.trialfun = 'ft_trialfun_general';
   cfg.trialdef.prestim = 0.100;
   cfg.trialdef.poststim = 0.25;
@@ -93,7 +116,7 @@ for i = 1:numel(filename)
   %%
   
   cfg = [];
-  cfg.channel = 'megmag';%'meggrad';%
+  cfg.channel = 'meggrad';%'megmag';%'
   cfg.viewmode = 'vertical';
   % ft_databrowser(cfg, data);
   % ft_databrowser(cfg, active);
@@ -155,6 +178,8 @@ for i = 1:numel(filename)
       end
   end
   %%
+  pos = [pos ; dip_source.dip.pos eval(dip{j})];
+  
   table(j, k) = 1e3*norm(dip_source.dip.pos-eval(dip{j}));
   %%
   % the remainder is in separate scripts, which generate figures (on disk) and data files
