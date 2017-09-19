@@ -2,19 +2,11 @@
 
 In the [workshop](https://osf.io/tga2w/) we discussed how to improve beamforming methods for clinical applications and research for Elekta users. In this repository we are sharing analysis code that relates to this.
 
-Right now there is not much organization yet. We could organize it as
+The organization is (more or less) like this
 ```
-./fieldtrip
-./mne
-./spm
-./nutmegtrip
-```
-or organize it like this
-```
-./robert
-./alex
-./vladimir
-./sarang
+./fieldtrip-nai -> Amit and Jukka
+./Elekta_Beamformer -> Amit and Jukka
+./fieldtrip -> Robert and Vladimir
+./MNE -> Alex
 ```
 
-Please let us know what you prefer and/or simply do it the way you like.
