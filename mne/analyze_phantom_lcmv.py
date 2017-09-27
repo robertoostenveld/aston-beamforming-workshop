@@ -18,8 +18,8 @@ from mne.parallel import parallel_func
 from phantom_helpers import get_data, plot_errors, get_bench_params, get_fwd
 from phantom_helpers import get_dataset
 
-# base_path, postfix = get_dataset('aston')
-base_path, postfix = get_dataset('')
+base_path, postfix = get_dataset('aston')
+# base_path, postfix = get_dataset('')
 
 maxfilter_options, dipole_amplitudes, dipole_indices, actual_pos, bads =\
     get_bench_params(base_path)
@@ -40,7 +40,8 @@ def run(da, di, mf):
     # Do LCMV
     data_cov = mne.compute_covariance(epochs, tmin=0.)
     stc = mne.beamformer.lcmv(
-        evoked, fwd, cov, data_cov, reg=0.01, pick_ori='max-power')
+        evoked, fwd, cov, data_cov, reg=0.1, pick_ori='max-power',
+        reduce_rank=True, max_ori_out='signed')
     stc._data = np.abs(stc._data)
     # stc = mne.beamformer.lcmv(
     #     evoked, fwd, cov, data_cov, reg=0.01, pick_ori='max-power',
@@ -50,8 +51,8 @@ def run(da, di, mf):
     vertno_max = stc.vertices[idx_max]
     pos = src[0]['rr'][vertno_max]
     error = 1e3 * np.linalg.norm(pos - actual_pos[di - 1])
-    if da < 1000 and error > 20:
-        raise RuntimeError
+    # if da < 1000 and error > 25:
+    #     raise RuntimeError
     print(" Error=%s mm" % np.round(error, 1))
     return pd.DataFrame([(di, da, mf, error)], columns=columns)
 

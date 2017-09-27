@@ -4,11 +4,16 @@ from phantom_helpers import plot_errors
 
 methods = ['dipfit', 'lcmv', 'music']
 
-maxfilter = 'True'
 dfs = []
+postfix = ""
+maxfilter = 'True'
+
+maxfilter = 'False'
+# maxfilter = 'mne'
+postfix = "_aston"
 
 for m in methods:
-    data = pd.read_csv('results/phantom_errors_%s.csv' % m)
+    data = pd.read_csv('results/phantom_errors_%s%s.csv' % (m, postfix))
     print(data)
     if 'Unnamed: 0' in data.columns:
         data = data.drop(['Unnamed: 0'], axis=1)
@@ -19,4 +24,4 @@ for m in methods:
 errors = pd.concat(dfs, axis=0, ignore_index=True)
 
 plot_errors(errors, "mne_%s" % maxfilter, postfix="",
-            ylim=(0, 25), xlabel_mapping=None)
+            ylim=(0, 15), xlabel_mapping=None)
