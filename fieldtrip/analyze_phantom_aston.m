@@ -1,5 +1,6 @@
 cd C:\home\Data\Aston\newphantom
 
+ft_defaults;
 %%
 % mri = ft_read_mri('CT/Elekta_Vectorview_phantom_ct.nii', 'dataformat', 'nifti_spm');
 % mri.anatomy = double(mri.anatomy);
@@ -10,7 +11,7 @@ cd C:\home\Data\Aston\newphantom
 % mri.transform = trans * mri.transform; % FIXME this is not correct
 % mri = ft_convert_units(mri, 'm');
 %%
-amp = [20 200 1000];
+amp = 200;%[20 200 1000];
 dip = 5:12;
 
 methods = {'dip_fit', 'scan_rv', 'scan_lcmv', 'scan_dics'};
@@ -36,6 +37,8 @@ headmodel.o = [0 0 0];
 headmodel.r = 0.10;
 
 %%
+suffix = '_movement_tsss_mc';%'_tsss';
+%%
 outpos = [];
 
 for i = 1:length(amp)
@@ -44,7 +47,7 @@ for i = 1:length(amp)
         close all
         
         %%
-        dataset = sprintf('.\\%dnAm\\Amp%d_Dip%d_IASoff.fif',amp(i), amp(i), dip(j));
+        dataset = sprintf('.\\%dnAm\\Amp%d_Dip%d_IASoff%s.fif',amp(i), amp(i), dip(j), suffix);
         
         hdr = ft_read_header(dataset);
         
