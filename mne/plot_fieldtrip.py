@@ -3,8 +3,9 @@ import pandas as pd
 
 from phantom_helpers import plot_errors
 
-data = loadmat('../fieldtrip/report/20170913/table.mat')
+# data = loadmat('../fieldtrip/report/20170913/table.mat')
 # data = loadmat('../fieldtrip/report/tmp/table.mat')
+data = loadmat('../fieldtrip/report/table_movement_tsss_mc.mat')
 
 table = data['table']
 
