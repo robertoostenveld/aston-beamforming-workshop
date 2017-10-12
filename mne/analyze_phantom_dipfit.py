@@ -42,7 +42,8 @@ def run(da, di, mf):
     actual_params = dict(actual_pos=actual_pos[di - 1],
                          actual_ori=actual_ori[di - 1],
                          actual_amp=da / 2.)
-    error = compute_error(di, pos, ori, dip.amplitude, **actual_params)
+    error = compute_error(di, pos, ori, 1e9 * dip.amplitude,
+                          **actual_params)
     error['gof'] = gof
     error['maxfilter'] = mf
     return pd.DataFrame(error)

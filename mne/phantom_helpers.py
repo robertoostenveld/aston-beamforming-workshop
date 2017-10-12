@@ -189,7 +189,7 @@ def compute_error(dipole_index, estimated_pos, estimated_ori, estimated_amp,
         estimated_ori = [None] * 3
     error_amp = None
     if estimated_amp is not None:
-        error_amp = np.abs(estimated_amp.max() / 1.e-9 - actual_amp / 2.)
+        error_amp = np.abs(estimated_amp.max() - actual_amp / 2.)
         print("   Error amplitude: %2.1f (nAm)" % error_amp)
     return dict(error_pos=error_pos,
                 error_ori=error_ori,
