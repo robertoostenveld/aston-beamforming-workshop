@@ -31,7 +31,8 @@ def plot_errors(errors, kind, postfix='', ylim=(0, 20), xkey='maxfilter',
     for ai, da in enumerate(dipole_amplitudes):
         ax = axs[ai]
         for di in dipole_indices:
-            query = 'dipole_index==%s and actual_dipole_amplitude==%s' % (di, da)
+            query = 'dipole_index==%s and actual_dipole_amplitude==%s'\
+                % (di, da)
             this_errors = errors.query(query)
             this_errors = this_errors[[xkey, 'error_pos']].set_index(xkey)
             this_errors = this_errors.loc[xticklabels].values
@@ -84,7 +85,8 @@ def get_data(base_path, dipole_idx, dipole_amplitude, use_maxwell_filter,
     if "phantom_aston" in base_path:
         data_path = base_path + '/tSSS mc Data'
         data_path = data_path + '/Amp%d_IASoff_movement/' % dipole_amplitude
-        fname = 'Amp%d_Dip%d_IASoff_movement_tsss_mc.fif' % (dipole_amplitude, dipole_idx)
+        fname = 'Amp%d_Dip%d_IASoff_movement_tsss_mc.fif' % (dipole_amplitude,
+                                                             dipole_idx)
         # fname = 'Amp%d_Dip%d_IASoff.fif' % (dipole_amplitude, dipole_idx)
         stim_channel = 'SYS201'
         # assert use_maxwell_filter in ['mne', False]
@@ -201,4 +203,11 @@ def compute_error(dipole_index, estimated_pos, estimated_ori, estimated_amp,
                 estimated_pos_z=estimated_pos[2],
                 estimated_ori_x=estimated_ori[0],
                 estimated_ori_y=estimated_ori[1],
-                estimated_ori_z=estimated_ori[2])
+                estimated_ori_z=estimated_ori[2],
+                actuall_pos_x=actual_pos[0],
+                actuall_pos_y=actual_pos[1],
+                actuall_pos_z=actual_pos[2],
+                actuall_ori_x=actual_ori[0],
+                actuall_ori_y=actual_ori[1],
+                actuall_ori_z=actual_ori[2],
+                )
