@@ -1,5 +1,7 @@
 % DICS scan
 
+fprintf(fid, '%d, %d, ', amp(i), dip(j));
+       
 %%
 
 cfg  = [];
@@ -8,6 +10,7 @@ cfg.grid = sourcemodel;
 cfg.method = 'dics';
 cfg.channel = 'megplanar';
 cfg.frequency = 20;
+cfg.dics.keepcsd = 'yes';
 source_dics_active   = ft_sourceanalysis(cfg, freq_active);
 source_dics_baseline = ft_sourceanalysis(cfg, freq_baseline);
 
@@ -25,7 +28,29 @@ source_dics_relative = ft_math(cfg, source_dics_active, source_dics_baseline);
 %%
 [~, ind] = max(source_dics_relative.pow);
 
-table(j, i, 4) = 1e3*norm(source_dics_relative.pos(ind, :)-pos(j, :));
+error_pos = 1e3*norm(source_dics_relative.pos(ind, :)-pos(j, :));
+
+[u, s, v] = svd(source_dics_active.avg.csd{ind});
+
+amplitude = sqrt(source_dics_active.avg.pow(ind)) * 10^9;
+
+est_ori = real(u(:,1)'); % orientation
+
+error_ori = atan2(norm(cross(est_ori, ori(j, :))),dot(est_ori, ori(j, :)));
+
+error_ori = min(abs(error_ori), abs(error_ori-pi));
+
+fprintf(fid, '%f,', [error_ori, error_pos, amplitude, est_ori, source_dics_relative.pos(ind, :), nan]);
+
+if ~isempty(strfind(suffix, 'tsss'))
+    fprintf(fid, 'TRUE, ');
+else
+    fprintf(fid, 'FALSE, ');
+end
+
+
+fprintf(fid, 'ft_dics\n');
+
 %{
 cfg = [];
 cfg.funparameter = 'pow';
