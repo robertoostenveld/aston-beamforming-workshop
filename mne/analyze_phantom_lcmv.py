@@ -16,17 +16,15 @@ import mne
 from mne.parallel import parallel_func
 
 from phantom_helpers import get_data, plot_errors, get_bench_params, get_fwd
-from phantom_helpers import get_dataset
+from phantom_helpers import get_dataset, compute_error
 
 base_path, postfix = get_dataset('aston')
 # base_path, postfix = get_dataset('')
 
-maxfilter_options, dipole_amplitudes, dipole_indices, actual_pos, bads =\
-    get_bench_params(base_path)
+(maxfilter_options, dipole_amplitudes, dipole_indices, actual_pos,
+    actual_ori, bads) = get_bench_params(base_path)
 
 src, fwd = get_fwd(base_path)
-
-columns = ['dipole_index', 'dipole_amplitude', 'maxfilter', 'error']
 
 
 def run(da, di, mf):
@@ -40,26 +38,29 @@ def run(da, di, mf):
     # Do LCMV
     data_cov = mne.compute_covariance(epochs, tmin=0.)
     stc = mne.beamformer.lcmv(
-        evoked, fwd, cov, data_cov, reg=0.1, pick_ori='max-power',
+        evoked, fwd, cov, data_cov, reg=0.01, pick_ori='max-power',
         reduce_rank=True, max_ori_out='signed')
-    stc._data = np.abs(stc._data)
-    # stc = mne.beamformer.lcmv(
-    #     evoked, fwd, cov, data_cov, reg=0.01, pick_ori='max-power',
-    #     max_ori_out='signed')
-    # stc = abs(stc)
+    stc = abs(stc)
     idx_max = np.argmax(np.mean(stc.data, axis=1))
     vertno_max = stc.vertices[idx_max]
     pos = src[0]['rr'][vertno_max]
-    error = 1e3 * np.linalg.norm(pos - actual_pos[di - 1])
-    # if da < 1000 and error > 25:
-    #     raise RuntimeError
-    print(" Error=%s mm" % np.round(error, 1))
-    return pd.DataFrame([(di, da, mf, error)], columns=columns)
+    ori = None
+    amp = None
+    gof = None
+
+    actual_params = dict(actual_pos=actual_pos[di - 1],
+                         actual_ori=actual_ori[di - 1],
+                         actual_amp=da / 2.)
+    error = compute_error(di, pos, ori, amp, **actual_params)
+    error['gof'] = gof
+    error['maxfilter'] = mf
+    return pd.DataFrame(error, index=[0])
 
 parallel, prun, _ = parallel_func(run, n_jobs=3)
 errors = parallel([prun(da, di, mf) for mf, da, di in
                    product(maxfilter_options, dipole_amplitudes,
                            dipole_indices)])
 errors = pd.concat(errors, axis=0, ignore_index=True)
+errors['method'] = 'lcmv'
 
 plot_errors(errors, 'lcmv', postfix=postfix)
