@@ -12,14 +12,14 @@ ft_defaults;
 % mri = ft_convert_units(mri, 'm');
 %%
 
-outfile = 'ft_results.csv';
+outfile = 'ft_results_nomov.csv';
 
 fid = fopen(outfile, 'w+');
 fprintf(fid, ['actual_dipole_amplitude, dipole_index, error_ori, error_pos, estimated_dipole_amplitude, estimated_ori_x, estimated_ori_y, '...
     'estimated_ori_z, estimated_pos_x, estimated_pos_y, estimated_pos_z, gof, maxfilter, method\n']);
 
 
-amp = 200;%[20 200 1000];
+amp = [20 200 1000];
 dip = 5:12;
 
 methods = {'dip_fit', 'scan_rv', 'scan_lcmv', 'scan_dics'};
@@ -55,7 +55,7 @@ headmodel.o = [0 0 0];
 headmodel.r = 0.10;
 
 %%
-suffix = '_movement_tsss_mc';%'_tsss';
+suffix = '_tsss';%'_movement_tsss_mc';%
 %%
 outpos = [];
 
@@ -134,7 +134,7 @@ for i = 1:length(amp)
         cfg.method = 'mtmfft';
         cfg.taper = 'hanning';
         cfg.output = 'powandcsd';
-        cfg.foilim = [0 40];
+        cfg.foilim = [19 21];
         freq_active = ft_freqanalysis(cfg, active);
         freq_baseline = ft_freqanalysis(cfg, baseline);
         

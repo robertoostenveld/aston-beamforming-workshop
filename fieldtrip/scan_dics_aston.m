@@ -11,6 +11,7 @@ cfg.method = 'dics';
 cfg.channel = 'megplanar';
 cfg.frequency = 20;
 cfg.dics.keepcsd = 'yes';
+cfg.dics.lambda = '0.01%';
 source_dics_active   = ft_sourceanalysis(cfg, freq_active);
 source_dics_baseline = ft_sourceanalysis(cfg, freq_baseline);
 
