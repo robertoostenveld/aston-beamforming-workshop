@@ -9,13 +9,14 @@ cfg.headmodel = headmodel;
 cfg.grid = sourcemodel;
 cfg.method = 'lcmv';
 cfg.channel = 'megplanar';
+cfg.lcmv.lambda = '10%';
+cfg.lcmv.normalize = 'no';
 %cfg.latency = 0.060;
 source_lcmv_active   = ft_sourceanalysis(cfg, timelock_active);
 
 %cfg.latency = 0.060+0.150;
 source_lcmv_baseline = ft_sourceanalysis(cfg, timelock_baseline);
 
-%%
 
 source_lcmv_active.time   = 0;
 source_lcmv_baseline.time = 0;
@@ -25,7 +26,7 @@ cfg.parameter = 'pow';
 cfg.operation = 'log10(x1/x2)';
 source_lcmv_relative = ft_math(cfg, source_lcmv_active, source_lcmv_baseline);
 
-%%
+
 [~, ind] = max(source_lcmv_relative.pow);
 
 error_pos = 1e3*norm(source_lcmv_relative.pos(ind, :)-pos(j, :));
@@ -51,11 +52,10 @@ end
 
 fprintf(fid, 'ft_lcmv\n');
 
-%%
 cfg = [];
 cfg.funparameter = 'pow';
 cfg.location = 'max';
-ft_sourceplot(cfg, source_lcmv_relative);
+ft_sourceplot(cfg, source_lcmv_active);%source_lcmv_relative);
 
 %{
 

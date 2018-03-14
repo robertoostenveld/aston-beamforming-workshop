@@ -11,7 +11,8 @@ cfg.method = 'dics';
 cfg.channel = 'megplanar';
 cfg.frequency = 20;
 cfg.dics.keepcsd = 'yes';
-cfg.dics.lambda = '0.01%';
+cfg.dics.lambda = '1%';
+cfg.normalize = 'yes';
 source_dics_active   = ft_sourceanalysis(cfg, freq_active);
 source_dics_baseline = ft_sourceanalysis(cfg, freq_baseline);
 
@@ -52,13 +53,14 @@ end
 
 fprintf(fid, 'ft_dics\n');
 
-%{
+
 cfg = [];
 cfg.funparameter = 'pow';
 cfg.location = 'max';
 ft_sourceplot(cfg, source_dics_relative);
 
-%%
+
+%{
 
 cfg = [];
 cfg.downsample = 2; % for memory reasons
@@ -72,16 +74,7 @@ cfg = [];
 cfg.funparameter = 'pow';
 cfg.funcolormap = 'hot';
 cfg.funcolorlim = 'zeromax';
-% cfg.location = 'max';
-if ~isempty(strfind(filename{i}, 'dip05'))
-  cfg.location = dip05;
-elseif ~isempty(strfind(filename{i}, 'dip06'))
-  cfg.location = dip06;
-elseif ~isempty(strfind(filename{i}, 'dip07'))
-  cfg.location = dip07;
-elseif ~isempty(strfind(filename{i}, 'dip08'))
-  cfg.location = dip08;
-end
+cfg.location = 'max';
 ft_sourceplot(cfg, source_dics_relative_int);
 
 pngfile = sprintf('%s_dics.png', filename{i});

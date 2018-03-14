@@ -12,15 +12,15 @@ ft_defaults;
 % mri = ft_convert_units(mri, 'm');
 %%
 
-outfile = 'ft_results_nomov.csv';
+outfile = 'ft_results_nomov_tsss.csv';
 
 fid = fopen(outfile, 'w+');
 fprintf(fid, ['actual_dipole_amplitude, dipole_index, error_ori, error_pos, estimated_dipole_amplitude, estimated_ori_x, estimated_ori_y, '...
     'estimated_ori_z, estimated_pos_x, estimated_pos_y, estimated_pos_z, gof, maxfilter, method\n']);
 
 
-amp = [20 200 1000];
-dip = 5:12;
+amp = 200;%[20 200 1000];
+dip = 5;%:12;
 
 methods = {'dip_fit', 'scan_rv', 'scan_lcmv', 'scan_dics'};
 
@@ -55,14 +55,12 @@ headmodel.o = [0 0 0];
 headmodel.r = 0.10;
 
 %%
-suffix = '_tsss';%'_movement_tsss_mc';%
+suffix = '_tsss';%'';%'_movement_tsss_mc';%
 %%
 outpos = [];
 
 for i = 1:length(amp)
     for j = 1:length(dip)
-        
-        fprintf(fid, '%d, %d, ', amp(i), dip(j));
         
         close all
         
@@ -134,7 +132,7 @@ for i = 1:length(amp)
         cfg.method = 'mtmfft';
         cfg.taper = 'hanning';
         cfg.output = 'powandcsd';
-        cfg.foilim = [19 21];
+        cfg.foilim = [0 40];
         freq_active = ft_freqanalysis(cfg, active);
         freq_baseline = ft_freqanalysis(cfg, baseline);
         
@@ -145,14 +143,18 @@ for i = 1:length(amp)
         cfg.layout = 'neuromag306all.lay';
         ft_multiplotER(cfg, timelock_active);
         
-        %%
+        %
         
         cfg = [];
         cfg.headmodel = headmodel;
-        cfg.grid.resolution = 0.0035;
+        cfg.grid.resolution = 0.01;%0.0035;
         sourcemodel = ft_prepare_sourcemodel(cfg, timelock_active);
+               
+%         cfg.normalize = 'yes';
+%         cfg.grid = sourcemodel;
+%         sourcemodel = ft_prepare_leadfield(cfg, timelock_active);
         
-        %%
+        
         cfg=[];
         cfg.headmodel = headmodel;
         cfg.grid.resolution = 20*1e-3;
@@ -172,16 +174,18 @@ for i = 1:length(amp)
         
         signal = s(1,1)*v(:,1)';
         
-        % CHECK Might not be exactly 20Hz
+        %CHECK Might not be exactly 20Hz
         model = cos(20*2*pi*dip_source.time) + 1i*sin(20*2*pi*dip_source.time);
         
         coeff = signal/model;
         amplitude = 2*abs(coeff); % in Am, zero to peak
         amplitude = 2 * amplitude * 10^9; % peak to peak, in nAm
-        %%
+        %
         error_pos = 1e3*norm(dip_source.dip.pos-pos(j, :));
         
         gof = 100*(1-var(reshape(dip_source.Vdata-dip_source.Vmodel, 1, []))/ var(reshape(dip_source.Vdata, 1, [])));
+        
+        fprintf(fid, '%d, %d, ', amp(i), dip(j));
         
         fprintf(fid, '%f,', [error_ori, error_pos, amplitude, est_ori, dip_source.dip.pos, gof]);
         
@@ -193,8 +197,8 @@ for i = 1:length(amp)
         
         
         fprintf(fid, 'ft_dip_fit\n');
-        %%
-        % the remainder is in separate scripts, which generate figures (on disk) and data files
+        
+        %the remainder is in separate scripts, which generate figures (on disk) and data files
         
         scan_rv_aston
         scan_lcmv_aston
