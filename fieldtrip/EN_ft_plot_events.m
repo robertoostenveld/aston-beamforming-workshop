@@ -1,4 +1,4 @@
-function ft_plot_events(figure,cfg, keyset, valueset)
+function EN_ft_plot_events(figure,cfg, keyset, valueset)
 %%
 % Usage: FT_PLOT_EVENTS plots timelocked events as assigned in keyset and valueset
 %        && also shows the number of trials for each event category
