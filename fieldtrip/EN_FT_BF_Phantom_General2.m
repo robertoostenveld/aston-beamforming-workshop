@@ -203,7 +203,7 @@ end
     data = ft_redefinetrial(cfg2, data);
 
 %% Visualize events triggers && number of trials per category
-    ft_plot_events(figure, cfg, keyset, valueset)
+    EN_ft_plot_events(figure, cfg, keyset, valueset)
 
 %% Interactive data browser 
 if isequal(par.more_plots, 'yes')
