@@ -52,8 +52,8 @@ activation.pick_types(meg='grad')
 baseline.pick_types(meg='grad')
 #%%
 cov_combined = mne.compute_covariance(combined)
-cov_act = mne.compute_covariance(activation)
-cov_bas = mne.compute_covariance(baseline)
+cov_act      = mne.compute_covariance(activation)
+cov_bas      = mne.compute_covariance(baseline)
 
 
 evoked_act = activation.average()
@@ -70,7 +70,7 @@ src = mne.setup_volume_source_space(
 fwd = mne.make_forward_solution(
     raw.info, trans=None, src=src, bem=sphere, eeg=False,
     meg=True)
-
+#%%
 
 filters = mne.beamformer.make_lcmv(combined.info, fwd, cov_combined, reg=0.01, pick_ori='max-power', reduce_rank=True)
 
