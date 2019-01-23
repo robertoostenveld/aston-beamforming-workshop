@@ -83,17 +83,16 @@ def get_fwd(base_path):
 def get_data(base_path, dipole_idx, dipole_amplitude, use_maxwell_filter,
              bads=[], show=False):
     if "phantom_aston" in base_path:
-        # data_path = base_path + '/tSSS mc Data'
-        # data_path = data_path + '/Amp%d_IASoff_movement/' % dipole_amplitude
-        data_path = base_path + '/tSSS Data'
-        # data_path = data_path + '/Amp%d_IASoff_movement/' % dipole_amplitude
-        data_path = data_path + '/Amp%d_IASoff_tSSS/' % dipole_amplitude
-        fname = 'Amp%d_Dip%d_IASoff_tsss.fif' % (dipole_amplitude, dipole_idx)
-        # fname = 'Amp%d_Dip%d_IASoff_movement_tsss_mc.fif' % (dipole_amplitude,
-        #                                                      dipole_idx)
-        # fname = 'Amp%d_Dip%d_IASoff.fif' % (dipole_amplitude, dipole_idx)
+        if use_maxwell_filter is True:
+            data_path = base_path + '/tSSS Data'
+            # data_path += '/Amp%d_IASoff_movement/' % dipole_amplitude
+            data_path = data_path + '/Amp%d_IASoff_tSSS/' % dipole_amplitude
+            fname = 'Amp%d_Dip%d_IASoff_tsss.fif' % (dipole_amplitude, dipole_idx)
+        else:
+            data_path = base_path + '/Raw Data'
+            data_path = data_path + '/Amp%d_IASoff/' % dipole_amplitude
+            fname = 'Amp%d_Dip%d_IASoff.fif' % (dipole_amplitude, dipole_idx)
         stim_channel = 'SYS201'
-        # assert use_maxwell_filter in ['mne', False]
     else:
         data_path = base_path + '/%dnAm/' % dipole_amplitude
         if use_maxwell_filter is True:

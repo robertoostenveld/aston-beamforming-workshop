@@ -53,8 +53,8 @@ def run(da, di, mf):
                                        rank=rank,
                                        weight_norm='nai',
                                        reduce_rank=reduce_rank)
-    stc = mne.beamformer.apply_lcmv(
-        evoked, filters, max_ori_out='signed')
+
+    stc = mne.beamformer.apply_lcmv(evoked, filters, max_ori_out='signed')
     stc = abs(stc)
     idx_max = np.argmax(np.mean(stc.data, axis=1))
     vertno_max = stc.vertices[idx_max]
@@ -71,7 +71,7 @@ def run(da, di, mf):
     error['maxfilter'] = mf
     return pd.DataFrame(error, index=[0])
 
-parallel, prun, _ = parallel_func(run, n_jobs=4)
+parallel, prun, _ = parallel_func(run, n_jobs=1)
 errors = parallel([prun(da, di, mf) for mf, da, di in
                    product(maxfilter_options, dipole_amplitudes,
                            dipole_indices)])
