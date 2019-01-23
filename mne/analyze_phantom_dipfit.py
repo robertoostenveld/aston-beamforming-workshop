@@ -48,7 +48,7 @@ def run(da, di, mf):
     error['maxfilter'] = mf
     return pd.DataFrame(error)
 
-parallel, prun, _ = parallel_func(run, n_jobs=4)
+parallel, prun, _ = parallel_func(run, n_jobs=1)
 errors = parallel([prun(da, di, mf) for mf, da, di in
                    product(maxfilter_options, dipole_amplitudes,
                            dipole_indices)])

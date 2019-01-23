@@ -3,16 +3,17 @@ import pandas as pd
 from phantom_helpers import plot_errors
 
 methods = ['dipfit', 'lcmv', 'music']
+# methods = ['dipfit', 'lcmv']
 
 dfs = []
 postfix = ""
 # maxfilter = 'False'
 
-maxfilter = 'False'
-# maxfilter = 'True'
+# maxfilter = 'False'
+maxfilter = 'True'
 # maxfilter = 'mne'
 # postfix = "_aston"
-# postfix = "_aston2"
+postfix = "_aston2"
 
 for m in methods:
     data = pd.read_csv('results/phantom_errors_%s%s.csv' % (m, postfix))

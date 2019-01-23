@@ -19,25 +19,25 @@ from mne.parallel import parallel_func
 from phantom_helpers import get_data, plot_errors, get_bench_params, get_fwd
 from phantom_helpers import get_dataset, compute_error
 
-base_path, postfix = get_dataset('aston')
 # base_path, postfix = get_dataset('')
+base_path, postfix = get_dataset('aston')
 
 (maxfilter_options, dipole_amplitudes, dipole_indices, actual_pos,
     actual_ori, bads) = get_bench_params(base_path)
 
 _, fwd = get_fwd(base_path)
 
-columns = ['dipole_index', 'dipole_amplitude', 'maxfilter', 'error']
-
 
 def run(da, di, mf):
     print(('Processing : %4d nAm (dip %d) : SSS=%s'
-          % (da, di, mf)).ljust(42), end='')
+          % (da, di, mf)).ljust(43), end='')
     epochs, evoked, cov, sphere = get_data(
         base_path, di, da, mf, bads=bads)
-    # Hack to only use gradiometers
-    epochs.pick_types(meg='grad')
-    evoked.pick_types(meg='grad')
+
+    # # Hack to only use gradiometers
+    # epochs.pick_types(meg='grad')
+    # evoked.pick_types(meg='grad')
+
     dip = mne.beamformer.rap_music(
         evoked, fwd, cov, n_dipoles=1, return_residual=False)[0]
     t_idx = np.argmax(dip.gof)

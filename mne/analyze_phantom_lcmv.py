@@ -24,22 +24,37 @@ base_path, postfix = get_dataset('aston')
 (maxfilter_options, dipole_amplitudes, dipole_indices, actual_pos,
     actual_ori, bads) = get_bench_params(base_path)
 
+# dipole_indices = [11]
+# dipole_amplitudes = [1000]
+
 src, fwd = get_fwd(base_path)
 
 
 def run(da, di, mf):
     print(('Processing : %4d nAm (dip %d) : SSS=%s'
-          % (da, di, mf)).ljust(42), end='')
+          % (da, di, mf)).ljust(43), end='')
     epochs, evoked, cov, sphere = get_data(
         base_path, di, da, mf, bads=bads)
-    # Hack to only use gradiometers
-    epochs.pick_types(meg='grad')
-    evoked.pick_types(meg='grad')
+
     # Do LCMV
-    data_cov = mne.compute_covariance(epochs, tmin=0.)
-    stc = mne.beamformer.lcmv(
-        evoked, fwd, cov, data_cov, reg=0.01, pick_ori='max-power',
-        reduce_rank=True, max_ori_out='signed')
+    reduce_rank = True   # as we use a sphere model
+    pick_ori = 'max-power'
+    rank = None
+
+    # # Expose MNE bug...
+    # reduce_rank = False
+    # pick_ori = None
+    # rank = None
+
+    data_cov = mne.compute_covariance(epochs, tmin=0.05)
+    filters = mne.beamformer.make_lcmv(epochs.info, fwd, data_cov,
+                                       reg=0.05, noise_cov=cov,
+                                       pick_ori=pick_ori,
+                                       rank=rank,
+                                       weight_norm='nai',
+                                       reduce_rank=reduce_rank)
+    stc = mne.beamformer.apply_lcmv(
+        evoked, filters, max_ori_out='signed')
     stc = abs(stc)
     idx_max = np.argmax(np.mean(stc.data, axis=1))
     vertno_max = stc.vertices[idx_max]
@@ -56,7 +71,7 @@ def run(da, di, mf):
     error['maxfilter'] = mf
     return pd.DataFrame(error, index=[0])
 
-parallel, prun, _ = parallel_func(run, n_jobs=3)
+parallel, prun, _ = parallel_func(run, n_jobs=4)
 errors = parallel([prun(da, di, mf) for mf, da, di in
                    product(maxfilter_options, dipole_amplitudes,
                            dipole_indices)])

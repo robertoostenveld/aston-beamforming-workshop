@@ -67,7 +67,7 @@ def get_fwd(base_path):
     src_fname = op.join(base_path, 'phantom-src.fif')
     if not op.isfile(src_fname):
         mne.setup_volume_source_space(
-            subject=None, pos=3.5, mri=None,
+            subject=None, pos=5., mri=None,
             sphere=(0.0, 0.0, 0.0, 80.0), bem=None, mindist=5.0,
             exclude=2.0).save(src_fname)
     src = mne.read_source_spaces(src_fname)
@@ -83,10 +83,14 @@ def get_fwd(base_path):
 def get_data(base_path, dipole_idx, dipole_amplitude, use_maxwell_filter,
              bads=[], show=False):
     if "phantom_aston" in base_path:
-        data_path = base_path + '/tSSS mc Data'
-        data_path = data_path + '/Amp%d_IASoff_movement/' % dipole_amplitude
-        fname = 'Amp%d_Dip%d_IASoff_movement_tsss_mc.fif' % (dipole_amplitude,
-                                                             dipole_idx)
+        # data_path = base_path + '/tSSS mc Data'
+        # data_path = data_path + '/Amp%d_IASoff_movement/' % dipole_amplitude
+        data_path = base_path + '/tSSS Data'
+        # data_path = data_path + '/Amp%d_IASoff_movement/' % dipole_amplitude
+        data_path = data_path + '/Amp%d_IASoff_tSSS/' % dipole_amplitude
+        fname = 'Amp%d_Dip%d_IASoff_tsss.fif' % (dipole_amplitude, dipole_idx)
+        # fname = 'Amp%d_Dip%d_IASoff_movement_tsss_mc.fif' % (dipole_amplitude,
+        #                                                      dipole_idx)
         # fname = 'Amp%d_Dip%d_IASoff.fif' % (dipole_amplitude, dipole_idx)
         stim_channel = 'SYS201'
         # assert use_maxwell_filter in ['mne', False]
@@ -100,11 +104,14 @@ def get_data(base_path, dipole_idx, dipole_amplitude, use_maxwell_filter,
 
     raw_fname = op.join(data_path, fname)
     raw = mne.io.read_raw_fif(raw_fname, preload=True, verbose='error')
-    raw.info['bads'] = bads
+    if use_maxwell_filter is not True:  # ie 'mne' or False
+        raw.info['bads'] = bads
 
     if "phantom_aston" in base_path:
         raw.crop(20, None)
+
     events = mne.find_events(raw, stim_channel=stim_channel)
+
     if show:
         raw.plot(events=events)
     if show:
@@ -127,11 +134,13 @@ def get_data(base_path, dipole_idx, dipole_amplitude, use_maxwell_filter,
 
     #######################################################################
     # Now we epoch our data, average it
-    tmin, tmax = -0.15, 0.1
+    tmin, tmax = -0.5, 0.5
     event_id = events[0, 2]
+    # reject = dict(grad=4000e-13, mag=4e-12)
+    reject = None
     epochs = mne.Epochs(
         raw, events, event_id, tmin, tmax, baseline=(None, -0.05),
-        preload=True)
+        preload=True, reject=reject)
     evoked = epochs.average()
 
     if show:
@@ -154,13 +163,16 @@ def get_bench_params(base_path):
         actual_pos, actual_ori = mne.dipole.get_phantom_dipoles('otaniemi')
         bads = ['MEG2233', 'MEG2422', 'MEG0111']
     else:
-        # dipole_amplitudes = [20, 200, 1000]
-        dipole_amplitudes = [200]
+        dipole_amplitudes = [20, 200, 1000]
+        # dipole_amplitudes = [200]
         dipole_indices = [5, 6, 7, 8, 9, 10, 11, 12]
-        maxfilter_options = [True]
+        # maxfilter_options = [True]
         # maxfilter_options = [False, 'mne']
+        maxfilter_options = [False, True]
+        # maxfilter_options = [True, False, 'mne']
         actual_pos, actual_ori = mne.dipole.get_phantom_dipoles('vectorview')
-        bads = ['MEG1133', 'MEG1323']
+        # bads = ['MEG1133', 'MEG1323']
+        bads = ['MEG1133', 'MEG1323', 'MEG0613', 'MEG1032']
         # bads = ['MEG1323', 'MEG1133', 'MEG0613', 'MEG1032', 'MEG2313',
         #         'MEG1133', 'MEG0613', 'MEG0111', 'MEG2423']
     return (maxfilter_options, dipole_amplitudes, dipole_indices,
