@@ -10,3 +10,4 @@ The organization is (more or less) like this
 ./MNE -> Alex
 ```
 
+The work collected and discussed during the Aston Beamforming workshops has resulted in the publication [Comparison of beamformer implementations for MEG source localization](https://doi.org/10.1016/j.neuroimage.2020.116797). The data and code for that publication has been shared on [Zenodo](https://doi.org/10.5281/zenodo.3233556).
